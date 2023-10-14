@@ -1,29 +1,62 @@
-from flask import Flask
-import urllib.request, json
+from fastapi import FastAPI
+from uuid import UUID
+from typing import List
+from models import UserBase, UserCreate, UserUpdate,Role
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route("/")
-# def index(): #faz essa def para que o programa abra a tela de visualização)
-#     return '<h1> Olá, WoMakers!</h1>'
-def get_list_characters(): #faz essa def para que o programa abra a tela de visualização)
-    url = "https://rickandmortyapi.com/api/character" #url do sit rick
-    response = urllib.request.urlopen(url)
-    characters = response.read()
-    dict = json.loads(characters)
+db: List[UserBase] = [
+    UserCreate(
+        id = UUID('1'),
+        first_name = "Laura",
+        last_name = "Avila",
+        email = "queiroz.analaura@gmail.com",
+        role = [Role.role_1]    
+    ),
+    UserCreate(
+        id = UUID('2'),
+        first_name = "Cesar",
+        last_name = "Pedroso",
+        email = "cesar.pedroso@gmail.com",
+        role = [Role.role_2]
+    ),
+    UserCreate(
+        id = UUID('3'),
+        first_name = "Jose",
+        last_name = "Ferreira",
+        email = "jose.ferreira@gmail.com",
+    )
+]
 
-    characters = []
 
-    for character in dict ["results"]:
-        character = {
-            "name": character ["name"],
-            "status": character ["status"]
-        }
+@app.get("/api/users")
+async def get_users():
+    return db;
 
-        characters.append(character)
-    
-    return {"characters": characters}
+@app.get("/api/users/{id}")
+async def get_user(id: UUID):
+    for user in db:
+        if user.id == id:
+            return user
+    return {"message": "Usuário não encontrado"}
 
-#eagora2235
+@app.put("/api/users/{id}")
+async def get_user(id: UUID, user_update: UserUpdate):
+    for index, user in enumerate(db):
+        if user.id == id:
+            db[index] = user_update
+            return user_update
+    return {"message": "Usuário não encontrado"}
 
-app.run(host='0.0.0.0', port=81)
+@app.post("/api/users")
+async def create_user(user: UserCreate):
+    db.append(user)
+    return user
+
+@app.delete("/api/users/{id}")
+async def delete_user(id: UUID):
+    for user in db:
+        if user.id == id:
+            db.remove(user)
+            return {"message": "Usuário deletado"}
+    return {"message": "Usuário não encontrado"}  

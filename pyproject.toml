@@ -8,6 +8,8 @@ authors = ["Your Name <you@example.com>"]
 python = ">=3.10.0,<3.11"
 replit = "^3.2.4"
 Flask = "^2.2.0"
+redberry = "^0.0.7.15"
+fastapi = "^0.103.2"
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md
